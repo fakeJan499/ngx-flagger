@@ -3,5 +3,37 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-  }
+    "ngx-flagger": {
+      "projectType": "library",
+      "root": "projects/ngx-flagger",
+      "sourceRoot": "projects/ngx-flagger/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/ngx-flagger/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ngx-flagger/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ngx-flagger/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ngx-flagger/src/test.ts",
+            "tsConfig": "projects/ngx-flagger/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-flagger/karma.conf.js"
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "ngx-flagger"
 }
