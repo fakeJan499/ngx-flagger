@@ -141,6 +141,19 @@ describe('NgxFlaggerService', () => {
       expect(result).toBeTrue();
       expect(logger.error).not.toHaveBeenCalled();
     });
+
+    it(`should negate result if required flag started with !`, () => {
+      const trueFlagName = 'flagA';
+      const falseFlagName = 'flagB';
+      flags[trueFlagName] = true;
+      flags[falseFlagName] = false;
+
+      const resultThatShouldBeFalse = service.isFeatureFlagEnabled('!' + trueFlagName);
+      const resultThatShouldBeTrue = service.isFeatureFlagEnabled('!' + falseFlagName);
+
+      expect(resultThatShouldBeTrue).toBeTrue();
+      expect(resultThatShouldBeFalse).toBeFalse();
+    });
   });
 
 });

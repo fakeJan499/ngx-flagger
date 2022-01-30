@@ -43,6 +43,13 @@ Example file:
 Use **NgxFlaggerService** to enable or disables some features in typescript code.
 ``isFeatureFlagEnabled`` returns true if feature flag is enabled, false otherwise.
 
+```typescript
+
+constructor(private ngxFlagger: NgxFlaggerService) {
+  const featureOn = this.ngxFlagger.isFeatureFlagEnabled('flagName');
+}
+```
+
 ### Directive
 
 Use **\*ngxFlagger** directive to enable or disable some sections in your template.
@@ -69,10 +76,15 @@ const routes = [
 ]
 ```
 
+## Syntax
+
+* Use ``.`` separated names to select nested flags.
+* Add ``!`` as the first character in the required flag to negate the result.
+
 ## Configuration
 
 ```typescript
-{
+interface RootConfig {
   path?: string;
   flagsAlwaysTrue?: boolean;
   debugMessagesDisabled?: boolean;

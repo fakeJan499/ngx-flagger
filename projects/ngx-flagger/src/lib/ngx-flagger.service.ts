@@ -22,6 +22,8 @@ export class NgxFlaggerService {
     if (!this.flags) return false;
 
     let config = this.flags;
+    const isFlagNegative = requiredFlag.startsWith('!');
+    requiredFlag = requiredFlag.replace(/^!/, '');
     for (const key of requiredFlag.split('.')) {
       if (key in config) config = config[key];
       else {
@@ -35,6 +37,6 @@ export class NgxFlaggerService {
       return false;
     }
 
-    return config;
+    return isFlagNegative ? !config : config;
   }
 }
