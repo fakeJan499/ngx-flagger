@@ -1,5 +1,5 @@
 import {Inject, Injectable} from "@angular/core";
-import {BehaviorSubject, firstValueFrom} from "rxjs";
+import {BehaviorSubject} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
 import {RootConfig} from "./root-config.interface";
@@ -18,9 +18,10 @@ export class NgxFlaggerInitializerService {
   public loadConfig() {
     const path = this.config.path ?? NgxFlaggerInitializerService.DEFAULT_PATH;
 
-    return firstValueFrom(this.http.get<Record<string, any>>(path))
+    // toPromise used because of backward compatibility - to replace in the future
+    return this.http.get<Record<string, any>>(path).toPromise()
       .then(config => {
-        this.flags$.next(config);
+        this.flags$.next(config ?? null);
       })
       .catch(err => {
         if (err.status === 404) {
