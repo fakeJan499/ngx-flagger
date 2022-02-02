@@ -62,7 +62,7 @@ describe('NgxFlaggerService', () => {
 
       service.isFeatureFlagEnabled(anyFlag);
 
-      expect(logger.error).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalledTimes(1);
     });
 
     it('should be true if always true set in config', () => {
@@ -100,7 +100,7 @@ describe('NgxFlaggerService', () => {
     it('should show error in the console if flag does not exist', () => {
       service.isFeatureFlagEnabled('youCantSeeMe');
 
-      expect(logger.error).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalledTimes(1);
     });
 
     it('should be false if required flag is not of type boolean', () => {
@@ -126,7 +126,7 @@ describe('NgxFlaggerService', () => {
 
       service.isFeatureFlagEnabled(notBoolFlagName);
 
-      expect(logger.error).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalledTimes(1);
     });
 
     it('should work with nested flags configuration', () => {
@@ -153,6 +153,41 @@ describe('NgxFlaggerService', () => {
 
       expect(resultThatShouldBeTrue).toBeTrue();
       expect(resultThatShouldBeFalse).toBeFalse();
+    });
+
+    it(`should not negate the result if flag is invalid`, () => {
+      flags['stringFlag'] = '';
+
+      const resultForStringValue = service.isFeatureFlagEnabled('!stringFlag');
+      const resultForUndefinedFlag = service.isFeatureFlagEnabled('!notExisting');
+
+      expect(resultForStringValue).toBeFalse();
+      expect(resultForUndefinedFlag).toBeFalse();
+    });
+
+    it(`should return whether any flag is true if required flag ended with *`, () => {
+      flags['flags'] = {
+        containerA: {
+          flagAA: false,
+          flagAB: true
+        },
+        containerB: {
+          flagAB: false
+        }
+      };
+
+      expect(service.isFeatureFlagEnabled('*')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('flags.*')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('flags.containerA.*')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('flags.containerB.*')).toBeFalse();
+    });
+
+    it(`should negate result when using * syntax`, () => {
+      flags['false'] = false;
+
+      const result = service.isFeatureFlagEnabled('!*');
+
+      expect(result).toBeTrue();
     });
   });
 
