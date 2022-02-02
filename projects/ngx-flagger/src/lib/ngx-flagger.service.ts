@@ -1,17 +1,19 @@
-import {Inject, Injectable} from '@angular/core';
+import {Inject, Injectable, OnDestroy} from '@angular/core';
 import {NgxFlaggerInitializerService} from "./ngx-flagger-initializer.service";
 import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
 import {RootConfig} from "./root-config.interface";
 import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {Subscription} from "rxjs";
 
 @Injectable()
-export class NgxFlaggerService {
+export class NgxFlaggerService implements OnDestroy {
   private flags: Record<string, any> | null = null;
+  private flagsSubscription: Subscription;
 
   constructor(@Inject(ngxFlaggerRootConfigInjectionToken) private readonly config: RootConfig,
               private readonly flaggerInitializer: NgxFlaggerInitializerService,
               private readonly logger: NgxFlaggerLogService) {
-    flaggerInitializer.flags$.subscribe(flags => this.flags = flags);
+    this.flagsSubscription = flaggerInitializer.flags$.subscribe(flags => this.flags = flags);
   }
 
   isFeatureFlagEnabled(requiredFlag: string): boolean {
@@ -32,7 +34,7 @@ export class NgxFlaggerService {
     return !!this.config.flagsAlwaysTrue;
   }
 
-  private getFromFlags(requiredFlag: string): {result: boolean, isValid: boolean} {
+  private getFromFlags(requiredFlag: string): { result: boolean, isValid: boolean } {
     let flag: Record<string, any> | boolean = this.flags!;
     const requiredFlagFragments = this.parseToNotNegateFlagFragments(requiredFlag);
 
@@ -57,7 +59,7 @@ export class NgxFlaggerService {
 
     for (const ffKey in flags) {
       if (flags[ffKey] === true) return true;
-      else if (this.isContainerObject(flags[ffKey]))  {
+      else if (this.isContainerObject(flags[ffKey])) {
         const res = this.anyFlagEnabled(flags[ffKey]);
         if (res) return true;
       }
@@ -78,5 +80,9 @@ export class NgxFlaggerService {
   private invalidFlagResult(requiredFlag: string, flag: any): boolean {
     this.logger.error(`Invalid flag type. Flag '${requiredFlag}' should be of type boolean, but is ${typeof flag}.`);
     return false;
+  }
+
+  ngOnDestroy() {
+    this.flagsSubscription.unsubscribe();
   }
 }
