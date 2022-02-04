@@ -189,6 +189,35 @@ describe('NgxFlaggerService', () => {
 
       expect(result).toBeTrue();
     });
+
+    it(`should return whether all valid flags are true if required flag ended with &`, () => {
+      flags['flags'] = {
+        onlyTrueContainer: {
+          flagA: true,
+          nestedContainer: {
+            flagB: true
+          }
+        },
+        containerWithFalse: {
+          flagC: true,
+          nested: {
+            falseFlag: false
+          }
+        }
+      };
+
+      expect(service.isFeatureFlagEnabled('&')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('flags.onlyTrueContainer.&')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('flags.containerWithFalse.&')).toBeFalse();
+    });
+
+    it(`should negate result when using & syntax`, () => {
+      flags['false'] = false;
+
+      const result = service.isFeatureFlagEnabled('!&');
+
+      expect(result).toBeTrue();
+    });
   });
 
 });

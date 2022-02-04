@@ -81,6 +81,7 @@ const routes = [
 * Use ``.`` separated names to select nested flags.
 * Add ``!`` as the first character in the required flag to negate the result.
 * Use ``*`` to check if any flag is enabled. You can use it at any nesting level.
+* Use ``&`` to check if all flags are enabled. You can use it at any nesting level.
 
 ## Configuration
 
