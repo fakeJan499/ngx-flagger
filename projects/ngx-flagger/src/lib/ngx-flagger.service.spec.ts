@@ -218,6 +218,75 @@ describe('NgxFlaggerService', () => {
 
       expect(result).toBeTrue();
     });
+
+    it(`should return logical AND of required flags when && is between required flags`, () => {
+      flags['true'] = true;
+      flags['false'] = false;
+
+      expect(service.isFeatureFlagEnabled('true && false')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('false && false')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('true && true')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('true && true && true')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('true && true && false')).toBeFalse();
+    });
+
+    it(`should return logical AND even if && is not preceded by or followed by space`, () => {
+      flags['true'] = true;
+      flags['false'] = false;
+
+      expect(service.isFeatureFlagEnabled('true&&false')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('true&&true')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('true&& true')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('true &&true')).toBeTrue();
+    });
+
+    it(`should return logical OR of required flags when || is between required flags`, () => {
+      flags['true'] = true;
+      flags['false'] = false;
+
+      expect(service.isFeatureFlagEnabled('true || false')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('false || false')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('true || true')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('true || true || false')).toBeTrue();
+    });
+
+    it(`should return logical OR even if || is not preceded by or followed by space`, () => {
+      flags['true'] = true;
+      flags['false'] = false;
+
+      expect(service.isFeatureFlagEnabled('true||false')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('false||false')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('true|| true')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('true ||true')).toBeTrue();
+    });
+
+    it(`should work with combination of && and ||`, () => {
+      flags['true'] = true;
+      flags['false'] = false;
+
+      expect(service.isFeatureFlagEnabled('true && true || false')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('false || true && false')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('true || true && false')).toBeTrue();
+    });
+
+    it(`should work with logical combinations in brackets`, () => {
+      flags['true'] = true;
+      flags['false'] = false;
+
+      expect(service.isFeatureFlagEnabled('true && (false || true)')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('(false || true) && false')).toBeFalse();
+      expect(service.isFeatureFlagEnabled('(true || (true && false)) && false')).toBeFalse();
+    });
+
+    it(`should show error in the console if syntax with brackets is incorrect`, () => {
+      flags[anyFlag] = false;
+
+      service.isFeatureFlagEnabled(`((${anyFlag})`);
+      service.isFeatureFlagEnabled(`${anyFlag})`);
+      service.isFeatureFlagEnabled(`()`);
+
+      expect(logger.error).toHaveBeenCalledTimes(3);
+    });
   });
 
 });

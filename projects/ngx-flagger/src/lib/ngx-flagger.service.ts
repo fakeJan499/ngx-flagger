@@ -16,12 +16,10 @@ export class NgxFlaggerService implements OnDestroy {
     this.flagsSubscription = flaggerInitializer.flags$.subscribe(flags => this.flags = flags);
   }
 
-  isFeatureFlagEnabled(requiredFlag: string): boolean {
-    if (!this.prerequisitesFulfilled()) return this.prerequisitesNotFulfilledResult()
+  isFeatureFlagEnabled(requiredFlagExpression: string): boolean {
+    if (!this.prerequisitesFulfilled()) return this.prerequisitesNotFulfilledResult();
 
-    const {result, isValid} = this.getFromFlags(requiredFlag);
-
-    return isValid && requiredFlag.startsWith('!') ? !result : result;
+    return this.getResultForExpression(requiredFlagExpression);
   }
 
   private prerequisitesFulfilled(): boolean {
@@ -34,7 +32,26 @@ export class NgxFlaggerService implements OnDestroy {
     return !!this.config.flagsAlwaysTrue;
   }
 
-  private getFromFlags(requiredFlag: string): { result: boolean, isValid: boolean } {
+  private getResultForExpression(requiredFlag: string): boolean {
+    let flagExpression = requiredFlag;
+
+    for (let flag of requiredFlag.split(/\|{2}|&{2}/)) { // || or &&
+      flag = flag.replace(/[()\s]/g, '');
+
+      const isFlagEnabled = this.isFlagEnabled(flag);
+      flagExpression = flagExpression.replace(flag, isFlagEnabled.toString());
+    }
+
+    return this.evalLogicalExpression(flagExpression);
+  }
+
+  private isFlagEnabled(requiredFlag: string): boolean {
+    const {result, isValid} = this.getResultForRequiredFlag(requiredFlag);
+
+    return isValid && requiredFlag.startsWith('!') ? !result : result;
+  }
+
+  private getResultForRequiredFlag(requiredFlag: string): { result: boolean, isValid: boolean } {
     let flag: Record<string, any> | boolean = this.flags!;
     const requiredFlagFragments = this.parseToNotNegateFlagFragments(requiredFlag);
 
@@ -51,17 +68,29 @@ export class NgxFlaggerService implements OnDestroy {
   }
 
   private anyFlagEnabled(flags: Record<string, any> | boolean): boolean {
+    return this.flagsGroupEnabled(flags, 'any');
+  }
+
+  private allFlagsEnabled(flags: Record<string, any> | boolean): boolean {
+    return this.flagsGroupEnabled(flags, 'all');
+  }
+
+  private flagsGroupEnabled(flags: Record<string, any> | boolean, operator: 'any' | 'all') {
     if (typeof flags === 'boolean') return flags;
 
+    const logicalOperator = operator === 'any';
+
     for (const ffKey in flags) {
-      if (flags[ffKey] === true) return true;
+      if (flags[ffKey] === logicalOperator) return logicalOperator;
       else if (this.isContainerObject(flags[ffKey])) {
-        const res = this.anyFlagEnabled(flags[ffKey]);
-        if (res) return true;
+        const res = this.flagsGroupEnabled(flags[ffKey], operator);
+
+        if (logicalOperator && res) return true;
+        if (!logicalOperator && !res) return false;
       }
     }
 
-    return false;
+    return !logicalOperator;
   }
 
   private parseToNotNegateFlagFragments(requiredFlag: string): string[] {
@@ -82,18 +111,14 @@ export class NgxFlaggerService implements OnDestroy {
     return false;
   }
 
-  private allFlagsEnabled(flags: Record<string, any> | boolean): boolean {
-    if (typeof flags === 'boolean') return flags;
+  private evalLogicalExpression(expression: string): boolean {
+    try {
+      return eval(expression);
+    } catch (e) {
+      if (e instanceof SyntaxError) this.logger.error(`Incorrect syntax. ${e.message}`);
 
-    for (const ffKey in flags) {
-      if (flags[ffKey] === false) return false;
-      else if (this.isContainerObject(flags[ffKey])) {
-        const res = this.allFlagsEnabled(flags[ffKey]);
-        if (!res) return false;
-      }
+      return false;
     }
-
-    return true;
   }
 
   ngOnDestroy() {
