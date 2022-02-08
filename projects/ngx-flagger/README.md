@@ -74,7 +74,12 @@ properties in route data.
 import {NgxFlaggerGuard} from "ngx-flagger";
 
 const routes = [
-  {path: 'routeA', component: ComponentA, canActivate: [NgxFlaggerGuard], data: {requiredFeatureFlag: 'flagA', featureFlagRedirect: '/'}}
+  {
+    path: 'routeA',
+    component: ComponentA,
+    canActivate: [NgxFlaggerGuard],
+    data: {requiredFeatureFlag: 'flagA', featureFlagRedirect: '/'}
+  }
 ]
 ```
 
@@ -84,6 +89,10 @@ const routes = [
 * Add ``!`` as the first character in the required flag to negate the result.
 * Use ``*`` to check if any flag is enabled. You can use it at any nesting level.
 * Use ``&`` to check if all flags are enabled. You can use it at any nesting level.
+* Use logical operators ``&&`` and ``||`` to combine 2 or more required flag expressions.
+* Group logical operations by ``()``  to ensure the order in which logical operations are performed.
+
+> Remember that all logical operations (``!``, ``&&``, ``||``) are performed in the same order as boolean operation in JS.
 
 ## Configuration
 
