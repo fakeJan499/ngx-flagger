@@ -36,7 +36,7 @@ export class NgxFlaggerService implements OnDestroy {
     let flagExpression = requiredFlag;
 
     for (let flag of requiredFlag.split(/\|{2}|&{2}/)) { // || or &&
-      flag = flag.replace(/[()\s]/g, '');
+      flag = flag.replace(/[()!\s]/g, '');
 
       const isFlagEnabled = this.isFlagEnabled(flag);
       flagExpression = flagExpression.replace(flag, isFlagEnabled.toString());
@@ -46,12 +46,6 @@ export class NgxFlaggerService implements OnDestroy {
   }
 
   private isFlagEnabled(requiredFlag: string): boolean {
-    const {result, isValid} = this.getResultForRequiredFlag(requiredFlag);
-
-    return isValid && requiredFlag.startsWith('!') ? !result : result;
-  }
-
-  private getResultForRequiredFlag(requiredFlag: string): { result: boolean, isValid: boolean } {
     let flag: Record<string, any> | boolean = this.flags!;
     const requiredFlagFragments = this.parseToNotNegateFlagFragments(requiredFlag);
 
@@ -59,12 +53,12 @@ export class NgxFlaggerService implements OnDestroy {
       if (fragment === '*') flag = this.anyFlagEnabled(flag);
       else if (fragment === '&') flag = this.allFlagsEnabled(flag);
       else if (this.isContainerObject(flag) && fragment in (flag as Record<string, any>)) flag = (flag as Record<string, any>)[fragment];
-      else return {result: this.noSuchFlagResult(requiredFlag), isValid: false};
+      else return this.noSuchFlagResult(requiredFlag);
     }
 
-    if (typeof flag !== 'boolean') return {result: this.invalidFlagResult(requiredFlag, flag), isValid: false};
+    if (typeof flag !== 'boolean') return this.invalidFlagResult(requiredFlag, flag);
 
-    return {result: flag, isValid: true};
+    return flag;
   }
 
   private anyFlagEnabled(flags: Record<string, any> | boolean): boolean {

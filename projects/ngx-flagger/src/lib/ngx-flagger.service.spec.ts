@@ -155,16 +155,6 @@ describe('NgxFlaggerService', () => {
       expect(resultThatShouldBeFalse).toBeFalse();
     });
 
-    it(`should not negate the result if flag is invalid`, () => {
-      flags['stringFlag'] = '';
-
-      const resultForStringValue = service.isFeatureFlagEnabled('!stringFlag');
-      const resultForUndefinedFlag = service.isFeatureFlagEnabled('!notExisting');
-
-      expect(resultForStringValue).toBeFalse();
-      expect(resultForUndefinedFlag).toBeFalse();
-    });
-
     it(`should return whether any flag is true if required flag ended with *`, () => {
       flags['flags'] = {
         containerA: {
@@ -273,7 +263,7 @@ describe('NgxFlaggerService', () => {
       flags['true'] = true;
       flags['false'] = false;
 
-      expect(service.isFeatureFlagEnabled('true && (false || true)')).toBeTrue();
+      expect(service.isFeatureFlagEnabled('true && !(false || true)')).toBeFalse();
       expect(service.isFeatureFlagEnabled('(false || true) && false')).toBeFalse();
       expect(service.isFeatureFlagEnabled('(true || (true && false)) && false')).toBeFalse();
     });
