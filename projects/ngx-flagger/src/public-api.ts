@@ -6,3 +6,4 @@ export * from './lib/ngx-flagger.service';
 export * from './lib/ngx-flagger.module';
 export * from './lib/ngx-flagger.directive';
 export * from './lib/ngx-flagger.guard';
+export * from './lib/log-level.enum';

@@ -2,6 +2,7 @@ import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
 import {TestBed} from "@angular/core/testing";
 import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
 import {RootConfig} from "./root-config.interface";
+import {LogLevel} from "./log-level.enum";
 import createSpy = jasmine.createSpy;
 import Spy = jasmine.Spy;
 
@@ -11,6 +12,10 @@ describe('NgxFlaggerLogService', () => {
 
   beforeEach(() => {
     config = {};
+
+    console.log = createSpy('log');
+    console.warn = createSpy('warn');
+    console.error = createSpy('error');
 
     TestBed.configureTestingModule({
       providers: [
@@ -29,60 +34,120 @@ describe('NgxFlaggerLogService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should log to the console', () => {
-    const message = 'Logger works';
-    console.log = createSpy('log');
+  describe(`log`, () => {
+    beforeEach(() => {
+      config.logLevel = LogLevel.INFO;
+    });
 
-    service.log(message);
+    it('should log to the console', () => {
+      const message = 'Logger works';
 
-    expect(console.log).toHaveBeenCalledTimes(1);
-    expect((console.log as Spy).calls.first().args[0]).toContain(message);
+      service.log(message);
+
+      expect(console.log).toHaveBeenCalledTimes(1);
+      expect((console.log as Spy).calls.first().args[0]).toContain(message);
+    });
+
+    it('should not log to the console if debugMessagesDisabled', () => {
+      config.debugMessagesDisabled = true;
+
+      service.log('any');
+
+      expect(console.log).not.toHaveBeenCalled();
+    });
   });
 
-  it('should not log to the console if debugMessagesDisabled', () => {
-    console.log = createSpy('log');
-    config.debugMessagesDisabled = true;
+  describe(`warn`, () => {
+    beforeEach(() => {
+      config.logLevel = LogLevel.WARN;
+    });
 
-    service.log('any');
+    it('should warn to the console', () => {
+      const message = 'Warn 123';
 
-    expect(console.log).not.toHaveBeenCalled();
+      service.warn(message);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect((console.warn as Spy).calls.first().args[0]).toContain(message);
+    });
+
+    it('should not warn to the console if debugMessagesDisabled', () => {
+      config.debugMessagesDisabled = true;
+
+      service.log('any');
+
+      expect(console.warn).not.toHaveBeenCalled();
+    });
   });
 
-  it('should warn to the console', () => {
-    const message = 'Warn 123';
-    console.warn = createSpy('warn');
+  describe(`error`, () => {
+    beforeEach(() => {
+      config.logLevel = LogLevel.ERROR;
+    });
 
-    service.warn(message);
+    it('should error to the console', () => {
+      const message = 'some error message';
 
-    expect(console.warn).toHaveBeenCalledTimes(1);
-    expect((console.warn as Spy).calls.first().args[0]).toContain(message);
+      service.error(message);
+
+      expect(console.error).toHaveBeenCalledTimes(1);
+      expect((console.error as Spy).calls.first().args[0]).toContain(message);
+    });
+
+    it('should not error to the console if debugMessagesDisabled', () => {
+      config.debugMessagesDisabled = true;
+
+      service.log('any');
+
+      expect(console.error).not.toHaveBeenCalled();
+    });
   });
 
-  it('should not warn to the console if debugMessagesDisabled', () => {
-    console.warn = createSpy('warn');
-    config.debugMessagesDisabled = true;
+  describe(`filters`, () => {
+    it(`should log all on LOG level`, () => {
+      config.logLevel = LogLevel.INFO;
 
-    service.log('any');
+      service.log('');
+      service.warn('');
+      service.error('');
 
-    expect(console.warn).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenCalledTimes(1);
+    });
+
+    it(`should filter logs on WARN level`, () => {
+      config.logLevel = LogLevel.WARN;
+
+      service.log('');
+      service.warn('');
+      service.error('');
+
+      expect(console.log).not.toHaveBeenCalled();
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenCalledTimes(1);
+    });
+
+    it(`should show only errors on ERROR level`, () => {
+      config.logLevel = LogLevel.ERROR;
+
+      service.log('');
+      service.warn('');
+      service.error('');
+
+      expect(console.log).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledTimes(1);
+    });
+
+    it(`should use WARN level by default`, () => {
+      service.log('');
+      service.warn('');
+      service.error('');
+
+      expect(console.log).not.toHaveBeenCalled();
+      expect(console.warn).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('should error to the console', () => {
-    const message = 'some error message';
-    console.error = createSpy('error');
-
-    service.error(message);
-
-    expect(console.error).toHaveBeenCalledTimes(1);
-    expect((console.error as Spy).calls.first().args[0]).toContain(message);
-  });
-
-  it('should not error to the console if debugMessagesDisabled', () => {
-    console.error = createSpy('error');
-    config.debugMessagesDisabled = true;
-
-    service.log('any');
-
-    expect(console.error).not.toHaveBeenCalled();
-  });
 })

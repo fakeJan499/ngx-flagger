@@ -101,6 +101,7 @@ interface RootConfig {
   path?: string;
   flagsAlwaysTrue?: boolean;
   debugMessagesDisabled?: boolean;
+  logLevel?: LogLevel // LogLevel.WARN by default
 }
 ```
 
