@@ -35,7 +35,7 @@ jobs:
       - run: npm run test-ci
 
       - name: Coveralls
-          uses: coverallsapp/github-action@master
-          with:
-            path-to-lcov: ./coverage/ngx-flagger/lcov.info
-            github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: coverallsapp/github-action@master
+        with:
+          path-to-lcov: ./coverage/ngx-flagger/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
