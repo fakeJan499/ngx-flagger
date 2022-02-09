@@ -28,8 +28,9 @@ module.exports = function (config) {
       dir: require('path').join(__dirname, '../../coverage/ngx-flagger'),
       subdir: '.',
       reporters: [
-        { type: 'html' },
-        { type: 'text-summary' }
+        {type: 'html'},
+        {type: 'text-summary'},
+        {type: 'lcov'}
       ]
     },
     reporters: ['progress', 'kjhtml'],
