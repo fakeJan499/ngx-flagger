@@ -4,16 +4,26 @@ import {NgxFlaggerService} from "./ngx-flagger.service";
 @Directive({
   selector: '[ngxFlagger]'
 })
-export class NgxFlaggerDirective implements OnInit{
+export class NgxFlaggerDirective implements OnInit {
   private requiredFlag: string = "";
-  private elseTemplate: TemplateRef<any> | null = null
-  private isHidden = true;
-  private isElseHidden = true;
+  private elseTemplateRef: TemplateRef<any> | null = null;
+  private explicitThenTemplateRef: TemplateRef<any> | null = null;
+  private viewRef: TemplateRef<any> | null = null;
 
   @Input()
   set ngxFlaggerElse(val: TemplateRef<any>) {
-    if (val) this.elseTemplate = val;
-    else this.elseTemplate = null;
+    if (val) this.elseTemplateRef = val;
+    else this.elseTemplateRef = null;
+
+    this.updateView();
+  }
+
+  @Input()
+  set ngxFlaggerThen(val: TemplateRef<any>) {
+    if (val) this.explicitThenTemplateRef = val;
+    else this.explicitThenTemplateRef = null;
+
+    this.updateView();
   }
 
   @Input()
@@ -25,35 +35,40 @@ export class NgxFlaggerDirective implements OnInit{
   }
 
   constructor(
-    private readonly templateRef: TemplateRef<any>,
+    private readonly implicitThenTemplateRef: TemplateRef<any>,
     private readonly viewContainer: ViewContainerRef,
     private readonly featureFlags: NgxFlaggerService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.updateView();
   }
 
   private updateView() {
-    if (this.checkValidity()) {
-      if (this.isHidden) {
-        this.viewContainer.clear();
-        this.viewContainer.createEmbeddedView(this.templateRef);
-        this.isHidden = false;
-        this.isElseHidden = true;
-      }
-    } else {
-      this.viewContainer.clear();
-      this.isHidden = true;
-      if (this.elseTemplate && this.isElseHidden) {
-        this.isElseHidden = false;
-        this.viewContainer.createEmbeddedView(this.elseTemplate);
-      }
-    }
+    if (this.requiredFeatureFlagEnabled()) this.showThenTemplate()
+    else this.showElseTemplate();
   }
 
-  private checkValidity() {
+  private requiredFeatureFlagEnabled() {
     return this.requiredFlag && this.featureFlags.isFeatureFlagEnabled(this.requiredFlag);
   }
 
+  private showThenTemplate() {
+    if (this.explicitThenTemplateRef) {
+      if (this.viewRef !== this.explicitThenTemplateRef) this.showTemplate(this.explicitThenTemplateRef);
+    } else {
+      if (this.viewRef !== this.implicitThenTemplateRef) this.showTemplate(this.implicitThenTemplateRef);
+    }
+  }
+
+  private showElseTemplate() {
+    if (this.elseTemplateRef && this.viewRef !== this.elseTemplateRef) this.showTemplate(this.elseTemplateRef);
+  }
+
+  private showTemplate(template: TemplateRef<any>) {
+    this.viewContainer.clear();
+    this.viewContainer.createEmbeddedView(template);
+    this.viewRef = template;
+  }
 }

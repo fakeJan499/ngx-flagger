@@ -54,7 +54,10 @@ constructor(private ngxFlagger: NgxFlaggerService) {
 
 ### Directive
 
-Use **\*ngxFlagger** directive to enable or disable some sections in your template.
+Use **\*ngxFlagger** directive to enable or disable some sections in your template. It works pretty much the same as *
+\*ngIf* Angular directive, but instead of boolean expression you provide a required feature flag expression. When the
+required feature flag expression is evaluated as true, the template provided in a ``then`` clause is rendered, and when
+false, the template provided in an optional ``else`` clause is rendered.
 
 ```angular2html
 <div *ngxFlagger="'someFeature'; else elseBlock">

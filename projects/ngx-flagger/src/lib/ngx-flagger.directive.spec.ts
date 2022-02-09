@@ -12,6 +12,9 @@ import SpyObj = jasmine.SpyObj;
     <ng-template #flagDisabled>
       <div id="flag-off"></div>
     </ng-template>
+
+    <div *ngxFlagger="flagName; then thenBlock"><div id="inner"></div></div>
+    <ng-template #thenBlock><div id="then-block"></div></ng-template>
   `
 })
 class NgxFlaggerHelperComponent {
@@ -65,6 +68,17 @@ describe(`NgxFlaggerDirective`, () => {
 
     const debugEl = fixture.debugElement;
     const el = debugEl.query(By.css('#flag-off'));
+
+    expect(el).toBeTruthy();
+  });
+
+  it(`should show "then" block`, () => {
+    const flagName = fixture.componentInstance.flagName;
+    flaggerService.isFeatureFlagEnabled.withArgs(flagName).and.returnValue(true);
+    fixture.detectChanges();
+
+    const debugEl = fixture.debugElement;
+    const el = debugEl.query(By.css('#then-block'));
 
     expect(el).toBeTruthy();
   });
