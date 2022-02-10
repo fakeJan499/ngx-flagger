@@ -1,4 +1,5 @@
 import {LogLevel} from "./log-level.enum";
+import {InjectionToken} from "@angular/core";
 
 export interface RootConfig {
   path?: string;
@@ -6,3 +7,5 @@ export interface RootConfig {
   debugMessagesDisabled?: boolean;
   logLevel?: LogLevel
 }
+
+export const ROOT_CONFIG_TOKEN = new InjectionToken<RootConfig>('ngx-flagger root config');

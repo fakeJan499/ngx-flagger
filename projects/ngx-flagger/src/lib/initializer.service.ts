@@ -1,22 +1,21 @@
 import {Inject, Injectable} from "@angular/core";
 import {BehaviorSubject} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
-import {RootConfig} from "./root-config.interface";
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
+import {LoggerService} from "./logger.service";
 
 @Injectable()
-export class NgxFlaggerInitializerService {
+export class InitializerService {
   static readonly DEFAULT_PATH = `/assets/config.json`;
   readonly flags$ = new BehaviorSubject<Record<string, any> | null>(null);
 
-  constructor(@Inject(ngxFlaggerRootConfigInjectionToken) private readonly config: RootConfig,
+  constructor(@Inject(ROOT_CONFIG_TOKEN) private readonly config: RootConfig,
               private readonly http: HttpClient,
-              private readonly logger: NgxFlaggerLogService) {
+              private readonly logger: LoggerService) {
   }
 
   public loadConfig() {
-    const path = this.config.path ?? NgxFlaggerInitializerService.DEFAULT_PATH;
+    const path = this.config.path ?? InitializerService.DEFAULT_PATH;
 
     // toPromise used because of backward compatibility - to replace in the future
     return this.http.get<Record<string, any>>(path).toPromise()

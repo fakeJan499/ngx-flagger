@@ -1,13 +1,13 @@
 import {Inject, Injectable} from '@angular/core';
-import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
-import {RootConfig} from "./root-config.interface";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LogLevel} from "./log-level.enum";
 
 @Injectable()
-export class NgxFlaggerLogService {
+export class LoggerService {
   private readonly prefix = '[NgxFlagger]';
 
-  constructor(@Inject(ngxFlaggerRootConfigInjectionToken) private readonly config: RootConfig){}
+  constructor(@Inject(ROOT_CONFIG_TOKEN) private readonly config: RootConfig) {
+  }
 
   error(message: string) {
     if (this.isEligible(LogLevel.ERROR)) console.error(`${this.prefix} - ${message}`);

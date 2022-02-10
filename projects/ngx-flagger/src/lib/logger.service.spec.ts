@@ -1,13 +1,12 @@
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {LoggerService} from "./logger.service";
 import {TestBed} from "@angular/core/testing";
-import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
-import {RootConfig} from "./root-config.interface";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LogLevel} from "./log-level.enum";
 import createSpy = jasmine.createSpy;
 import Spy = jasmine.Spy;
 
 describe('NgxFlaggerLogService', () => {
-  let service: NgxFlaggerLogService;
+  let service: LoggerService;
   let config: RootConfig;
 
   beforeEach(() => {
@@ -20,14 +19,14 @@ describe('NgxFlaggerLogService', () => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: ngxFlaggerRootConfigInjectionToken,
+          provide: ROOT_CONFIG_TOKEN,
           useValue: config
         },
-        NgxFlaggerLogService
+        LoggerService
       ]
     });
 
-    service = TestBed.inject(NgxFlaggerLogService);
+    service = TestBed.inject(LoggerService);
   });
 
   it('should be created', () => {

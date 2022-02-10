@@ -1,14 +1,13 @@
-import {NgxFlaggerInitializerService} from "./ngx-flagger-initializer.service";
-import {RootConfig} from "./root-config.interface";
+import {InitializerService} from "./initializer.service";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {TestBed} from "@angular/core/testing";
-import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {LoggerService} from "./logger.service";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 import createSpyObj = jasmine.createSpyObj;
 
-describe('NgxFlaggerInitializerService', () => {
-  let service: NgxFlaggerInitializerService;
-  let logger: NgxFlaggerLogService;
+describe('InitializerService', () => {
+  let service: InitializerService;
+  let logger: LoggerService;
   let httpClient: HttpTestingController;
   let config: RootConfig;
 
@@ -20,18 +19,18 @@ describe('NgxFlaggerInitializerService', () => {
       imports: [HttpClientTestingModule],
       providers: [
         {
-          provide: ngxFlaggerRootConfigInjectionToken,
+          provide: ROOT_CONFIG_TOKEN,
           useValue: config
         },
         {
-          provide: NgxFlaggerLogService,
+          provide: LoggerService,
           useValue: logger
         },
-        NgxFlaggerInitializerService,
+        InitializerService,
       ]
     });
 
-    service = TestBed.inject(NgxFlaggerInitializerService);
+    service = TestBed.inject(InitializerService);
     httpClient = TestBed.inject(HttpTestingController);
   });
 
@@ -42,7 +41,7 @@ describe('NgxFlaggerInitializerService', () => {
   it('should get config from file', () => {
     service.loadConfig();
 
-    const request = httpClient.expectOne(NgxFlaggerInitializerService.DEFAULT_PATH);
+    const request = httpClient.expectOne(InitializerService.DEFAULT_PATH);
     expect(request.request.responseType).toBe('json');
     expect(request.cancelled).toBeFalsy();
     httpClient.verify();
@@ -76,7 +75,7 @@ describe('NgxFlaggerInitializerService', () => {
       })
     });
 
-    const request = httpClient.expectOne(NgxFlaggerInitializerService.DEFAULT_PATH);
+    const request = httpClient.expectOne(InitializerService.DEFAULT_PATH);
     request.flush(mockConfig)
     httpClient.verify();
   });
@@ -87,7 +86,7 @@ describe('NgxFlaggerInitializerService', () => {
       done();
     })
 
-    const request = httpClient.expectOne(NgxFlaggerInitializerService.DEFAULT_PATH);
+    const request = httpClient.expectOne(InitializerService.DEFAULT_PATH);
     request.error(new ProgressEvent('error'));
     httpClient.verify();
   });

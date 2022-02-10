@@ -1,7 +1,7 @@
 import {TestBed} from "@angular/core/testing";
-import {RootConfig} from "./root-config.interface";
+import {RootConfig} from "./root-config";
 import {ActivatedRouteSnapshot, Router} from "@angular/router";
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {LoggerService} from "./logger.service";
 import {NgxFlaggerService} from "./ngx-flagger.service";
 import {NgxFlaggerGuard} from "./ngx-flagger.guard";
 import SpyObj = jasmine.SpyObj;
@@ -10,7 +10,7 @@ import createSpyObj = jasmine.createSpyObj;
 describe(`NgxFlaggerGuard`, () => {
   const anyFlag = 'flag';
   let config: RootConfig;
-  let logger: SpyObj<NgxFlaggerLogService>;
+  let logger: SpyObj<LoggerService>;
   let featureFlagsService: SpyObj<NgxFlaggerService>;
   let router: SpyObj<Router>;
   let activatedRouteSnapshot: SpyObj<ActivatedRouteSnapshot>;
@@ -38,7 +38,7 @@ describe(`NgxFlaggerGuard`, () => {
           useValue: router
         },
         {
-          provide: NgxFlaggerLogService,
+          provide: LoggerService,
           useValue: logger
         },
         NgxFlaggerGuard

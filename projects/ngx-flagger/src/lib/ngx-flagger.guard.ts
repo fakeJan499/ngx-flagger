@@ -1,13 +1,13 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, UrlTree} from '@angular/router';
 import {NgxFlaggerService} from "./ngx-flagger.service";
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {LoggerService} from "./logger.service";
 
 @Injectable()
 export class NgxFlaggerGuard implements CanActivate, CanActivateChild {
   constructor(private readonly featureFlags: NgxFlaggerService,
               private readonly router: Router,
-              private readonly logger: NgxFlaggerLogService) {
+              private readonly logger: LoggerService) {
   }
 
   canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree {

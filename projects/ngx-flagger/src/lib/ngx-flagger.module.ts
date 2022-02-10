@@ -3,10 +3,9 @@ import {HttpClientModule} from "@angular/common/http";
 import {NgxFlaggerService} from "./ngx-flagger.service";
 import {NgxFlaggerGuard} from "./ngx-flagger.guard";
 import {NgxFlaggerDirective} from "./ngx-flagger.directive";
-import {NgxFlaggerInitializerService} from "./ngx-flagger-initializer.service";
-import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
-import {RootConfig} from "./root-config.interface";
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {InitializerService} from "./initializer.service";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
+import {LoggerService} from "./logger.service";
 
 @NgModule({
   imports: [
@@ -25,17 +24,17 @@ export class NgxFlaggerModule {
       ngModule: NgxFlaggerModule,
       providers: [
         {
-          provide: ngxFlaggerRootConfigInjectionToken,
+          provide: ROOT_CONFIG_TOKEN,
           useValue: config
         },
         NgxFlaggerService,
         NgxFlaggerGuard,
-        NgxFlaggerLogService,
-        NgxFlaggerInitializerService,
+        LoggerService,
+        InitializerService,
         {
           provide: APP_INITIALIZER,
-          useFactory: (initializer: NgxFlaggerInitializerService) => () => initializer.loadConfig(),
-          deps: [NgxFlaggerInitializerService],
+          useFactory: (initializer: InitializerService) => () => initializer.loadConfig(),
+          deps: [InitializerService],
           multi: true
         }
       ]

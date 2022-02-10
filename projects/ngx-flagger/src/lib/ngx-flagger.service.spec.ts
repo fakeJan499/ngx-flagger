@@ -1,10 +1,9 @@
 import {TestBed} from '@angular/core/testing';
 
 import {NgxFlaggerService} from './ngx-flagger.service';
-import {RootConfig} from "./root-config.interface";
-import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
-import {NgxFlaggerInitializerService} from "./ngx-flagger-initializer.service";
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
+import {InitializerService} from "./initializer.service";
+import {LoggerService} from "./logger.service";
 import {BehaviorSubject} from "rxjs";
 import createSpyObj = jasmine.createSpyObj;
 import SpyObj = jasmine.SpyObj;
@@ -13,8 +12,8 @@ describe('NgxFlaggerService', () => {
   let config: RootConfig;
   let flags: Record<string, any>;
   let service: NgxFlaggerService;
-  let initializer: SpyObj<NgxFlaggerInitializerService>;
-  let logger: SpyObj<NgxFlaggerLogService>;
+  let initializer: SpyObj<InitializerService>;
+  let logger: SpyObj<LoggerService>;
 
   beforeEach(() => {
     config = {};
@@ -25,15 +24,15 @@ describe('NgxFlaggerService', () => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: ngxFlaggerRootConfigInjectionToken,
+          provide: ROOT_CONFIG_TOKEN,
           useValue: config
         },
         {
-          provide: NgxFlaggerInitializerService,
+          provide: InitializerService,
           useValue: initializer
         },
         {
-          provide: NgxFlaggerLogService,
+          provide: LoggerService,
           useValue: logger
         },
         NgxFlaggerService

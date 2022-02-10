@@ -1,8 +1,7 @@
 import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {NgxFlaggerInitializerService} from "./ngx-flagger-initializer.service";
-import {ngxFlaggerRootConfigInjectionToken} from "./root-config-injection-token";
-import {RootConfig} from "./root-config.interface";
-import {NgxFlaggerLogService} from "./ngx-flagger-log.service";
+import {InitializerService} from "./initializer.service";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
+import {LoggerService} from "./logger.service";
 import {Subscription} from "rxjs";
 
 @Injectable()
@@ -10,9 +9,9 @@ export class NgxFlaggerService implements OnDestroy {
   private flags: Record<string, any> | null = null;
   private flagsSubscription: Subscription;
 
-  constructor(@Inject(ngxFlaggerRootConfigInjectionToken) private readonly config: RootConfig,
-              private readonly flaggerInitializer: NgxFlaggerInitializerService,
-              private readonly logger: NgxFlaggerLogService) {
+  constructor(@Inject(ROOT_CONFIG_TOKEN) private readonly config: RootConfig,
+              private readonly flaggerInitializer: InitializerService,
+              private readonly logger: LoggerService) {
     this.flagsSubscription = flaggerInitializer.flags$.subscribe(flags => this.flags = flags);
   }
 
