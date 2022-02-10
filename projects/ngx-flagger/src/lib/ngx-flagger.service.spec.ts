@@ -278,4 +278,46 @@ describe('NgxFlaggerService', () => {
     });
   });
 
+  describe(`accessors`, () => {
+    describe(`flags`, () => {
+      it(`should get access to flags`, () => {
+        const flags = {a: false};
+        initializer.flags$.next(flags);
+        expect(service.flags).toEqual(flags);
+
+        initializer.flags$.next(null);
+        expect(service.flags).toBeNull();
+      });
+
+      it(`should not return reference to original object`, () => {
+        const flags = {a: true};
+        initializer.flags$.next(flags);
+
+        expect(service.flags).not.toBe(flags);
+      });
+    });
+
+    describe(`flags$`, () => {
+      it(`should observe flags`, (done) => {
+        const flags = {flag: true};
+        initializer.flags$.next(flags);
+        service.flags$.subscribe(f => {
+          expect(f).toEqual(flags)
+          done();
+        });
+      });
+
+      it(`should emit copy of the flags object`, (done) => {
+        const flags = {flag: false};
+        initializer.flags$.next(flags);
+        service.flags$.subscribe(f => {
+          expect(f).not.toBe(flags);
+          done();
+        });
+      });
+    });
+
+
+  });
+
 });
