@@ -26,7 +26,7 @@ export class InitializerService {
         if (err.status === 404) {
           this.logger.error(`File ${path} not found.`);
         } else {
-          this.logger.error(err)
+          this.logger.error(err.message)
         }
       });
   }
