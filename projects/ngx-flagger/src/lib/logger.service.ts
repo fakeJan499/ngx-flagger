@@ -17,8 +17,8 @@ export class LoggerService {
     if (this.isEligible(LogLevel.WARN)) console.warn(`${this.prefix} - ${message}`);
   }
 
-  log(message: string) {
-    if (this.isEligible(LogLevel.INFO)) console.log(`${this.prefix} - ${message}`);
+  info(message: string) {
+    if (this.isEligible(LogLevel.INFO)) console.info(`${this.prefix} - ${message}`);
   }
 
   private isEligible(logLevel: LogLevel): boolean {

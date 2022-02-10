@@ -19,7 +19,7 @@ describe(`NgxFlaggerGuard`, () => {
 
   beforeEach(() => {
     config = {};
-    logger = createSpyObj('NgxFlaggerLogService', ['error']);
+    logger = createSpyObj('NgxFlaggerLogService', ['error', 'info']);
     routeData = {};
     activatedRouteSnapshot = createSpyObj('activatedRouteSnapshot',
       [''],
@@ -82,5 +82,15 @@ describe(`NgxFlaggerGuard`, () => {
     guard.canActivate(activatedRouteSnapshot);
 
     expect(router.createUrlTree).toHaveBeenCalledOnceWith(['/']);
+  });
+
+  describe(`canActivateChild`, () => {
+    it(`should exactly the same as CanActivate`, () => {
+      const canActivate = spyOn(guard, 'canActivate');
+
+      guard.canActivateChild(activatedRouteSnapshot);
+
+      expect(canActivate).toHaveBeenCalledOnceWith(activatedRouteSnapshot);
+    });
   });
 });

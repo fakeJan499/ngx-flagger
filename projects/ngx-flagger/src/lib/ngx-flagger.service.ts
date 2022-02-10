@@ -25,6 +25,7 @@ export class NgxFlaggerService implements OnDestroy {
   isFeatureFlagEnabled(requiredFlagExpression: string): boolean {
     if (!this.prerequisitesFulfilled()) return this.prerequisitesNotFulfilledResult();
 
+    this.logger.info(`Evaluating expression '${requiredFlagExpression}'.`);
     return this.getResultForExpression(requiredFlagExpression);
   }
 
@@ -48,7 +49,7 @@ export class NgxFlaggerService implements OnDestroy {
       flagExpression = flagExpression.replace(flag, isFlagEnabled.toString());
     }
 
-    return this.evalLogicalExpression(flagExpression);
+    return this.evalLogicalExpression(flagExpression, requiredFlag);
   }
 
   private isFlagEnabled(requiredFlag: string): boolean {
@@ -111,11 +112,15 @@ export class NgxFlaggerService implements OnDestroy {
     return false;
   }
 
-  private evalLogicalExpression(expression: string): boolean {
+  private evalLogicalExpression(expression: string, requiredFlag: string): boolean {
     try {
-      return eval(expression);
+      const result = eval(expression);
+
+      this.logger.info(`Expression '${expression}' evaluated to ${result}.`);
+
+      return result;
     } catch (e) {
-      if (e instanceof SyntaxError) this.logger.error(`Incorrect syntax. ${e.message}`);
+      if (e instanceof SyntaxError) this.logger.error(`Incorrect syntax in ${requiredFlag}. ${e.message}`);
 
       return false;
     }

@@ -21,6 +21,7 @@ export class InitializerService {
     return this.http.get<Record<string, any>>(path).toPromise()
       .then(config => {
         this.flags$.next(config ?? null);
+        this.logger.info('Loaded flags.');
       })
       .catch(err => {
         if (err.status === 404) {

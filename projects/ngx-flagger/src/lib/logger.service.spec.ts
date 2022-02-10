@@ -5,14 +5,14 @@ import {LogLevel} from "./log-level.enum";
 import createSpy = jasmine.createSpy;
 import Spy = jasmine.Spy;
 
-describe('NgxFlaggerLogService', () => {
+describe('LoggerService', () => {
   let service: LoggerService;
   let config: RootConfig;
 
   beforeEach(() => {
     config = {};
 
-    console.log = createSpy('log');
+    console.info = createSpy('info');
     console.warn = createSpy('warn');
     console.error = createSpy('error');
 
@@ -33,7 +33,7 @@ describe('NgxFlaggerLogService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe(`log`, () => {
+  describe(`info`, () => {
     beforeEach(() => {
       config.logLevel = LogLevel.INFO;
     });
@@ -41,18 +41,18 @@ describe('NgxFlaggerLogService', () => {
     it('should log to the console', () => {
       const message = 'Logger works';
 
-      service.log(message);
+      service.info(message);
 
-      expect(console.log).toHaveBeenCalledTimes(1);
-      expect((console.log as Spy).calls.first().args[0]).toContain(message);
+      expect(console.info).toHaveBeenCalledTimes(1);
+      expect((console.info as Spy).calls.first().args[0]).toContain(message);
     });
 
     it('should not log to the console if debugMessagesDisabled', () => {
       config.debugMessagesDisabled = true;
 
-      service.log('any');
+      service.info('any');
 
-      expect(console.log).not.toHaveBeenCalled();
+      expect(console.info).not.toHaveBeenCalled();
     });
   });
 
@@ -73,7 +73,7 @@ describe('NgxFlaggerLogService', () => {
     it('should not warn to the console if debugMessagesDisabled', () => {
       config.debugMessagesDisabled = true;
 
-      service.log('any');
+      service.info('any');
 
       expect(console.warn).not.toHaveBeenCalled();
     });
@@ -96,7 +96,7 @@ describe('NgxFlaggerLogService', () => {
     it('should not error to the console if debugMessagesDisabled', () => {
       config.debugMessagesDisabled = true;
 
-      service.log('any');
+      service.info('any');
 
       expect(console.error).not.toHaveBeenCalled();
     });
@@ -106,11 +106,11 @@ describe('NgxFlaggerLogService', () => {
     it(`should log all on LOG level`, () => {
       config.logLevel = LogLevel.INFO;
 
-      service.log('');
+      service.info('');
       service.warn('');
       service.error('');
 
-      expect(console.log).toHaveBeenCalledTimes(1);
+      expect(console.info).toHaveBeenCalledTimes(1);
       expect(console.warn).toHaveBeenCalledTimes(1);
       expect(console.error).toHaveBeenCalledTimes(1);
     });
@@ -118,11 +118,11 @@ describe('NgxFlaggerLogService', () => {
     it(`should filter logs on WARN level`, () => {
       config.logLevel = LogLevel.WARN;
 
-      service.log('');
+      service.info('');
       service.warn('');
       service.error('');
 
-      expect(console.log).not.toHaveBeenCalled();
+      expect(console.info).not.toHaveBeenCalled();
       expect(console.warn).toHaveBeenCalledTimes(1);
       expect(console.error).toHaveBeenCalledTimes(1);
     });
@@ -130,21 +130,21 @@ describe('NgxFlaggerLogService', () => {
     it(`should show only errors on ERROR level`, () => {
       config.logLevel = LogLevel.ERROR;
 
-      service.log('');
+      service.info('');
       service.warn('');
       service.error('');
 
-      expect(console.log).not.toHaveBeenCalled();
+      expect(console.info).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
       expect(console.error).toHaveBeenCalledTimes(1);
     });
 
     it(`should use WARN level by default`, () => {
-      service.log('');
+      service.info('');
       service.warn('');
       service.error('');
 
-      expect(console.log).not.toHaveBeenCalled();
+      expect(console.info).not.toHaveBeenCalled();
       expect(console.warn).toHaveBeenCalledTimes(1);
     });
   });

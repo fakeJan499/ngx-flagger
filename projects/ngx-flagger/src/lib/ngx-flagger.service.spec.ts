@@ -19,7 +19,7 @@ describe('NgxFlaggerService', () => {
     config = {};
     flags = {};
     initializer = createSpyObj('NgxFlaggerInitializerService', [''], {flags$: new BehaviorSubject(flags)});
-    logger = createSpyObj('NgxFlaggerLogService', ['error']);
+    logger = createSpyObj('NgxFlaggerLogService', ['error', 'info']);
 
     TestBed.configureTestingModule({
       providers: [
