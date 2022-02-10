@@ -20,14 +20,8 @@ jobs:
         with:
           node-version: 16.x
 
-      - run: echo "${{ toJson(${{ github.event) }}"
-
       - run: npm ci
 
       - run: npm run test-ci
-
-      - run: npm run build
-
-
 
 
