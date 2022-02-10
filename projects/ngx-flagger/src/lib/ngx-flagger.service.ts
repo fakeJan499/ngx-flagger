@@ -2,17 +2,24 @@ import {Inject, Injectable, OnDestroy} from '@angular/core';
 import {InitializerService} from "./initializer.service";
 import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LoggerService} from "./logger.service";
-import {Subscription} from "rxjs";
+import {map, Subscription} from "rxjs";
+import {copy} from "../utils/copy";
 
 @Injectable()
 export class NgxFlaggerService implements OnDestroy {
-  private flags: Record<string, any> | null = null;
+  private _flags: Record<string, any> | null = null;
   private flagsSubscription: Subscription;
+
+  flags$ = this.flaggerInitializer.flags$.pipe(map(v => copy(v)));
+
+  get flags(): Record<string, any> | null {
+    return copy(this._flags);
+  }
 
   constructor(@Inject(ROOT_CONFIG_TOKEN) private readonly config: RootConfig,
               private readonly flaggerInitializer: InitializerService,
               private readonly logger: LoggerService) {
-    this.flagsSubscription = flaggerInitializer.flags$.subscribe(flags => this.flags = flags);
+    this.flagsSubscription = flaggerInitializer.flags$.subscribe(flags => this._flags = flags);
   }
 
   isFeatureFlagEnabled(requiredFlagExpression: string): boolean {
@@ -22,11 +29,11 @@ export class NgxFlaggerService implements OnDestroy {
   }
 
   private prerequisitesFulfilled(): boolean {
-    return !!this.flags && !this.config.flagsAlwaysTrue;
+    return !!this._flags && !this.config.flagsAlwaysTrue;
   }
 
   private prerequisitesNotFulfilledResult(): boolean {
-    if (!this.flags) this.logger.error('Flag requested before it has been initialize.');
+    if (!this._flags) this.logger.error('Flag requested before it has been initialize.');
 
     return !!this.config.flagsAlwaysTrue;
   }
@@ -45,7 +52,7 @@ export class NgxFlaggerService implements OnDestroy {
   }
 
   private isFlagEnabled(requiredFlag: string): boolean {
-    let flag: Record<string, any> | boolean = this.flags!;
+    let flag: Record<string, any> | boolean = this._flags!;
     const requiredFlagFragments = this.parseToNotNegateFlagFragments(requiredFlag);
 
     for (const fragment of requiredFlagFragments) {
