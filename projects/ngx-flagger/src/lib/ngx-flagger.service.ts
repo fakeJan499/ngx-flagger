@@ -4,6 +4,7 @@ import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LoggerService} from "./logger.service";
 import {map, Subscription} from "rxjs";
 import {copy} from "../utils/copy";
+import {isObject} from "../utils/is-object";
 
 @Injectable()
 export class NgxFlaggerService implements OnDestroy {
@@ -59,7 +60,7 @@ export class NgxFlaggerService implements OnDestroy {
     for (const fragment of requiredFlagFragments) {
       if (fragment === '*') flag = this.anyFlagEnabled(flag);
       else if (fragment === '&') flag = this.allFlagsEnabled(flag);
-      else if (this.isContainerObject(flag) && fragment in (flag as Record<string, any>)) flag = (flag as Record<string, any>)[fragment];
+      else if (isObject(flag) && fragment in (flag as Record<string, any>)) flag = (flag as Record<string, any>)[fragment];
       else return this.noSuchFlagResult(requiredFlag);
     }
 
@@ -83,7 +84,7 @@ export class NgxFlaggerService implements OnDestroy {
 
     for (const ffKey in flags) {
       if (flags[ffKey] === logicalOperator) return logicalOperator;
-      else if (this.isContainerObject(flags[ffKey])) {
+      else if (isObject(flags[ffKey])) {
         const res = this.flagsGroupEnabled(flags[ffKey], operator);
 
         if (logicalOperator && res) return true;
@@ -96,10 +97,6 @@ export class NgxFlaggerService implements OnDestroy {
 
   private parseToNotNegateFlagFragments(requiredFlag: string): string[] {
     return requiredFlag.replace(/^!/, '').split('.');
-  }
-
-  private isContainerObject(flag: any): boolean {
-    return typeof flag === 'object' && !Array.isArray(flag);
   }
 
   private noSuchFlagResult(requiredFlag: string): boolean {
