@@ -1,7 +1,7 @@
 import {Inject, Injectable} from "@angular/core";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, catchError, map, Observable, of, zip} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
+import {Path, PathEl, ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LoggerService} from "./logger.service";
 
 @Injectable()
@@ -18,17 +18,50 @@ export class InitializerService {
     const path = this.config.path ?? InitializerService.DEFAULT_PATH;
 
     // toPromise used because of backward compatibility - to replace in the future
-    return this.http.get<Record<string, any>>(path).toPromise()
+    return this.createLoader(path).toPromise()
       .then(config => {
-        this.flags$.next(config ?? null);
+        this.flags$.next(config);
         this.logger.info('Loaded flags.');
-      })
-      .catch(err => {
-        if (err.status === 404) {
-          this.logger.error(`File ${path} not found.`);
-        } else {
-          this.logger.error(err.message)
-        }
       });
+  }
+
+  private createLoader(path: Path): Observable<any> {
+    if (Array.isArray(path)) return this.createArrayLoader(path);
+
+    return this.createSimpleLoader(path);
+  }
+
+  private createArrayLoader(path: PathEl[]): Observable<any> {
+    return zip(...path.map(p => this.createSimpleLoader(p))).pipe(
+      map(res => res.reduce((config, val) => ({...config, ...val}), {}))
+    );
+  }
+
+  private createSimpleLoader(path: PathEl): Observable<any> {
+    let resourcePath = typeof path === 'object' ? path.path : path;
+
+    return this.http.get(resourcePath).pipe(
+      map(c => {
+        if (typeof path === 'object') {
+          const config: Record<string, any> = {};
+          config[path.wrapperName] = c;
+          return config;
+        }
+
+        return c;
+      }),
+      catchError(e => {
+        this.logError(e, resourcePath);
+        return of({});
+      })
+    );
+  }
+
+  private logError(err: { message: string, status: number }, path: string): void {
+    if (err.status === 404) {
+      this.logger.error(`File ${path} not found.`);
+    } else {
+      this.logger.error(err.message)
+    }
   }
 }

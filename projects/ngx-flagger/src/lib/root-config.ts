@@ -1,8 +1,12 @@
 import {LogLevel} from "./log-level.enum";
 import {InjectionToken} from "@angular/core";
 
+export type PathEl = string | { path: string, wrapperName: string };
+
+export type Path = PathEl | PathEl[];
+
 export interface RootConfig {
-  path?: string;
+  path?: Path;
   flagsAlwaysTrue?: boolean;
   debugMessagesDisabled?: boolean;
   logLevel?: LogLevel
