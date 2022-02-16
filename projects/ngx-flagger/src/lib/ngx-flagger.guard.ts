@@ -31,7 +31,7 @@ export class NgxFlaggerGuard implements CanActivate, CanActivateChild {
 
   private redirect(destination: string, route: ActivatedRouteSnapshot) {
     if (!destination)
-      this.logger.info(`'featureFlagRedirect' is falsy in route ${joinUrlSegments(route.url)}. Redirecting to '/'.`)
+      this.logger.info(`'featureFlagRedirect' is falsy in route '${joinUrlSegments(route.url)}'. Redirecting to '/'.`)
 
     return this.router.createUrlTree([destination || '/']);
   }
