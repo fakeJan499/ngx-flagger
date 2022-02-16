@@ -22,6 +22,6 @@ export class LoggerService {
   }
 
   private isEligible(logLevel: LogLevel): boolean {
-    return !this.config.debugMessagesDisabled && logLevel >= (this.config.logLevel ?? LogLevel.WARN);
+    return !this.config.logsDisabled && logLevel >= (this.config.logLevel ?? LogLevel.WARN);
   }
 }

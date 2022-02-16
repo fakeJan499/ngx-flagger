@@ -48,7 +48,7 @@ describe('LoggerService', () => {
     });
 
     it('should not log to the console if debugMessagesDisabled', () => {
-      config.debugMessagesDisabled = true;
+      config.logsDisabled = true;
 
       service.info('any');
 
@@ -71,7 +71,7 @@ describe('LoggerService', () => {
     });
 
     it('should not warn to the console if debugMessagesDisabled', () => {
-      config.debugMessagesDisabled = true;
+      config.logsDisabled = true;
 
       service.info('any');
 
@@ -94,7 +94,7 @@ describe('LoggerService', () => {
     });
 
     it('should not error to the console if debugMessagesDisabled', () => {
-      config.debugMessagesDisabled = true;
+      config.logsDisabled = true;
 
       service.info('any');
 

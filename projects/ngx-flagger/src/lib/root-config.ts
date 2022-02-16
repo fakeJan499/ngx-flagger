@@ -8,7 +8,7 @@ export type Path = PathEl | PathEl[];
 export interface RootConfig {
   path?: Path;
   flagsAlwaysTrue?: boolean;
-  debugMessagesDisabled?: boolean;
+  logsDisabled?: boolean;
   logLevel?: LogLevel
 }
 
