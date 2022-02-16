@@ -57,8 +57,8 @@ constructor(private ngxFlagger: NgxFlaggerService) {
 
 ### Directive
 
-Use **\*ngxFlagger** directive to enable or disable some sections in your template. It works pretty much the same as *
-\*ngIf* Angular directive, but instead of boolean expression you provide a required feature flag expression. When the
+Use **\*ngxFlagger** directive to enable or disable some sections in your template. It works pretty much the same as
+*\*ngIf* Angular directive, but instead of boolean expression you provide a required feature flag expression. When the
 required feature flag expression is evaluated as true, the template provided in a ``then`` clause is rendered, and when
 false, the template provided in an optional ``else`` clause is rendered.
 
@@ -98,16 +98,35 @@ const routes = [
 * Use logical operators ``&&`` and ``||`` to combine 2 or more required flag expressions.
 * Group logical operations by ``()``  to ensure the order in which logical operations are performed.
 
-> Remember that all logical operations (``!``, ``&&``, ``||``) are performed in the same order as boolean operation in JS.
+> Remember that all logical operations (``!``, ``&&``, ``||``) are performed in the same order as boolean operations in JS.
 
 ## Configuration
 
-```typescript
-interface RootConfig {
-  path?: string;
-  flagsAlwaysTrue?: boolean;
-  debugMessagesDisabled?: boolean;
-  logLevel?: LogLevel // LogLevel.WARN by default
-}
-```
+Configure the **ngx-flagger** behaviour by passing a configuration object in the *forRoot* static method of the **
+NgxFlaggerModule**.
+
+### Path
+
+The ``path`` is a path to the file with feature flags. By default, the NgxFlagger initializer will look for
+the ``assets/config.json`` file.  
+It is possible to have multiple files with feature flags. The simplest way to provide information about files is to set
+an array of strings as the ``path`` property of the configuration object. Each string is a path to file with feature
+flags.  
+Additionally, you can wrap feature flags from any file in a wrapper object. To do it, replace the string value
+with ``{ path: string, wrapperName: string }`` object.
+
+### Log Level
+
+The ``logLevel`` indicates which logs will be shown in the console. There are 3 different levels of
+logs: ```ERROR, WARN, INFO```. With ``LogLevel.INFO`` all logs will be shown, ``LogLevel.WARN`` hides *info* logs
+and ``LogLevel.ERROR`` shows only *error* level logs. The default value is ``LogLevel.WARN``. If you want to disable all
+logs, check **Logs Disabled**.
+
+### Logs Disabled
+
+By setting the ``logsDisabled`` to true, you can disable all logs. The common use case is to disable logs in production.
+
+### Flags Always True
+
+Set the ``flagsAlwaysTrue`` to *true* to enable all flags. It can be usefully in development. 
 
