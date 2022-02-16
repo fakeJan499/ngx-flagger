@@ -5,6 +5,7 @@ import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {InitializerService} from "./initializer.service";
 import {LoggerService} from "./logger.service";
 import {BehaviorSubject} from "rxjs";
+import {LogLevel} from "./log-level.enum";
 import createSpyObj = jasmine.createSpyObj;
 import SpyObj = jasmine.SpyObj;
 
@@ -318,6 +319,18 @@ describe('NgxFlaggerService', () => {
     });
 
 
+  });
+
+  describe(`logs`, () => {
+    it(`should log info about result`, () => {
+      config.logLevel = LogLevel.INFO;
+      flags['flagA'] = true;
+      const flagsExpression = 'flagA && !flagA';
+
+      service.isFeatureFlagEnabled(flagsExpression);
+
+      expect(logger.info.calls.mostRecent().args[0]).toContain(`Expression '${flagsExpression}'`);
+    });
   });
 
 });

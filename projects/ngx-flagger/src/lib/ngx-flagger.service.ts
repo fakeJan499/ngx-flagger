@@ -111,9 +111,10 @@ export class NgxFlaggerService implements OnDestroy {
 
   private evalLogicalExpression(expression: string, requiredFlag: string): boolean {
     try {
-      const result = eval(expression);
+      this.logger.info(`Expression '${requiredFlag}' parsed to ${expression}.`);
 
-      this.logger.info(`Expression '${expression}' evaluated to ${result}.`);
+      const result = eval(expression);
+      this.logger.info(`Expression '${requiredFlag}' evaluated to ${result}.`);
 
       return result;
     } catch (e) {
