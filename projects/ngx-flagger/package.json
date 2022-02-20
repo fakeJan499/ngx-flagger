@@ -1,6 +1,6 @@
 {
   "name": "ngx-flagger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Runtime feature flags for Angular.",
   "author": {
     "name": "Dawid Szemro"
@@ -15,7 +15,6 @@
     "feature",
     "flags",
     "flag",
-    "toggle",
     "feature-flags",
     "ngx",
     "toggle"

@@ -1,5 +1,6 @@
 import {Inject, Injectable} from "@angular/core";
-import {BehaviorSubject, catchError, map, Observable, of, zip} from "rxjs";
+import {BehaviorSubject, Observable, of, zip} from "rxjs";
+import {catchError, map} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {Path, PathEl, ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LoggerService} from "./logger.service";

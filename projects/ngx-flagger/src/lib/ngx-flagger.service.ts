@@ -2,7 +2,8 @@ import {Inject, Injectable, OnDestroy} from '@angular/core';
 import {InitializerService} from "./initializer.service";
 import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LoggerService} from "./logger.service";
-import {map, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
+import {map} from "rxjs/operators";
 import {copy} from "../utils/copy";
 import {isObject} from "../utils/is-object";
 
