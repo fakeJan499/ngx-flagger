@@ -1,10 +1,10 @@
-import {Directive, Input, OnInit, TemplateRef, ViewContainerRef} from '@angular/core';
+import {Directive, Input, OnChanges, TemplateRef, ViewContainerRef} from '@angular/core';
 import {NgxFlaggerService} from "./ngx-flagger.service";
 
 @Directive({
   selector: '[ngxFlagger]'
 })
-export class NgxFlaggerDirective implements OnInit {
+export class NgxFlaggerDirective implements OnChanges {
   private requiredFlag: string = "";
   private elseTemplateRef: TemplateRef<any> | null = null;
   private explicitThenTemplateRef: TemplateRef<any> | null = null;
@@ -14,24 +14,17 @@ export class NgxFlaggerDirective implements OnInit {
   set ngxFlaggerElse(val: TemplateRef<any>) {
     if (val) this.elseTemplateRef = val;
     else this.elseTemplateRef = null;
-
-    this.updateView();
   }
 
   @Input()
   set ngxFlaggerThen(val: TemplateRef<any>) {
     if (val) this.explicitThenTemplateRef = val;
     else this.explicitThenTemplateRef = null;
-
-    this.updateView();
   }
 
   @Input()
   set ngxFlagger(val: string) {
-    if (val) {
-      this.requiredFlag = val;
-      this.updateView();
-    }
+    if (val) this.requiredFlag = val;
   }
 
   constructor(
@@ -41,7 +34,7 @@ export class NgxFlaggerDirective implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  ngOnChanges() {
     this.updateView();
   }
 
@@ -55,15 +48,18 @@ export class NgxFlaggerDirective implements OnInit {
   }
 
   private showThenTemplate() {
-    if (this.explicitThenTemplateRef) {
-      if (this.viewRef !== this.explicitThenTemplateRef) this.showTemplate(this.explicitThenTemplateRef);
-    } else {
-      if (this.viewRef !== this.implicitThenTemplateRef) this.showTemplate(this.implicitThenTemplateRef);
-    }
+    if (this.requireTemplateChangeTo(this.explicitThenTemplateRef))
+      this.showTemplate(this.explicitThenTemplateRef!);
+    else if (this.requireTemplateChangeTo(this.implicitThenTemplateRef))
+      this.showTemplate(this.implicitThenTemplateRef);
   }
 
   private showElseTemplate() {
-    if (this.elseTemplateRef && this.viewRef !== this.elseTemplateRef) this.showTemplate(this.elseTemplateRef);
+    if (this.requireTemplateChangeTo(this.elseTemplateRef)) this.showTemplate(this.elseTemplateRef!);
+  }
+
+  private requireTemplateChangeTo(t: TemplateRef<any> | null): boolean {
+    return !!t && this.viewRef !== t;
   }
 
   private showTemplate(template: TemplateRef<any>) {

@@ -39,17 +39,14 @@ export class InitializerService {
   }
 
   private createSimpleLoader(path: PathEl): Observable<any> {
-    let resourcePath = typeof path === 'object' ? path.path : path;
+    const isPathObject = typeof path === 'object';
+    const resourcePath = isPathObject ? path.path : path;
 
     return this.http.get(resourcePath).pipe(
-      map(c => {
-        if (typeof path === 'object') {
-          const config: Record<string, any> = {};
-          config[path.wrapperName] = c;
-          return config;
-        }
+      map(v => {
+        if (isPathObject) return {[path.wrapperName]: v};
 
-        return c;
+        return v;
       }),
       catchError(e => {
         this.logError(e, resourcePath);

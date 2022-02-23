@@ -44,7 +44,7 @@ export class NgxFlaggerService implements OnDestroy {
   private getResultForExpression(requiredFlag: string): boolean {
     let flagExpression = requiredFlag;
 
-    for (let flag of requiredFlag.split(/\|{2}|&{2}/)) { // || or &&
+    for (let flag of requiredFlag.split(/\|\||&&/)) { // || or &&
       flag = flag.replace(/[()!\s]/g, '');
 
       const isFlagEnabled = this.isFlagEnabled(flag);
@@ -55,8 +55,8 @@ export class NgxFlaggerService implements OnDestroy {
   }
 
   private isFlagEnabled(requiredFlag: string): boolean {
+    const requiredFlagFragments = requiredFlag.split('.');
     let flag: Record<string, any> | boolean = this._flags!;
-    const requiredFlagFragments = this.parseToNotNegateFlagFragments(requiredFlag);
 
     for (const fragment of requiredFlagFragments) {
       if (fragment === '*') flag = this.anyFlagEnabled(flag);
@@ -94,10 +94,6 @@ export class NgxFlaggerService implements OnDestroy {
     }
 
     return !logicalOperator;
-  }
-
-  private parseToNotNegateFlagFragments(requiredFlag: string): string[] {
-    return requiredFlag.replace(/^!/, '').split('.');
   }
 
   private noSuchFlagResult(requiredFlag: string): boolean {
