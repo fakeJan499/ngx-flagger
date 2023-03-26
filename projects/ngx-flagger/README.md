@@ -146,11 +146,11 @@ import {NgxFlaggerModule, LoggerService, ConsoleLoggerService, LogLevel} from 'n
 Configure the **ngx-flagger** behaviour by passing a configuration object in the ``forRoot`` static method of the
 **NgxFlaggerModule**.
 
-## Loader
+### Loader
 
 Provider of a loader that will load feature flags. The loader needs to extend or implement **FlagsLoaderService**.
 
-## Logger
+### Logger
 
 Provider of a logger that will be used inside ngx-flagger. The logger needs to extend or implement **LoggerService**.
 
