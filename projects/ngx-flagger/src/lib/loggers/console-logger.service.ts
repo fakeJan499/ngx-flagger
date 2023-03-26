@@ -1,12 +1,14 @@
-import {Inject, Injectable} from '@angular/core';
-import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
+import {Injectable, Optional} from '@angular/core';
 import {LogLevel} from "./log-level.enum";
+import {LoggerService} from "./logger.service";
 
 @Injectable()
-export class LoggerService {
+export class ConsoleLoggerService implements LoggerService {
   private readonly prefix = '[NgxFlagger]';
+  private readonly logLevel: LogLevel;
 
-  constructor(@Inject(ROOT_CONFIG_TOKEN) private readonly config: RootConfig) {
+  constructor(@Optional() logLevel: LogLevel | null) {
+    this.logLevel = logLevel ?? LogLevel.WARN;
   }
 
   error(message: string) {
@@ -22,6 +24,6 @@ export class LoggerService {
   }
 
   private isEligible(logLevel: LogLevel): boolean {
-    return !this.config.logsDisabled && logLevel >= (this.config.logLevel ?? LogLevel.WARN);
+    return this.logLevel !== LogLevel.NONE && logLevel >= this.logLevel;
   }
 }

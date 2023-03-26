@@ -4,7 +4,7 @@ import {Component, OnInit} from '@angular/core';
   selector: 'app-b-two',
   template: `
     <p>
-      b-1 works!
+      b-2 works!
     </p>
   `
 })

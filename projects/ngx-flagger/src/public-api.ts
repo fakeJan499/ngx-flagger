@@ -2,8 +2,7 @@
  * Public API Surface of ngx-flagger
  */
 
-export * from './lib/ngx-flagger.service';
+export * from './lib/consumers';
 export * from './lib/ngx-flagger.module';
-export * from './lib/ngx-flagger.directive';
-export * from './lib/ngx-flagger.guard';
-export * from './lib/log-level.enum';
+export {ConsoleLoggerService, LoggerService, LogLevel} from './lib/loggers';
+export {FlagsLoaderService, FlagsHttpLoaderService} from './lib/loaders';

@@ -2,7 +2,7 @@ import {Directive, Input, OnChanges, TemplateRef, ViewContainerRef} from '@angul
 import {NgxFlaggerService} from "./ngx-flagger.service";
 
 @Directive({
-  selector: '[ngxFlagger]'
+  selector: '[ngxFlagger]',
 })
 export class NgxFlaggerDirective implements OnChanges {
   private requiredFlag: string = "";

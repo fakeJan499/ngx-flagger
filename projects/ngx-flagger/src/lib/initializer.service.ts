@@ -1,65 +1,21 @@
-import {Inject, Injectable} from "@angular/core";
-import {BehaviorSubject, Observable, of, zip} from "rxjs";
-import {catchError, map} from "rxjs/operators";
-import {HttpClient} from "@angular/common/http";
-import {Path, PathEl, ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
-import {LoggerService} from "./logger.service";
+import {Injectable} from "@angular/core";
+import {BehaviorSubject, concatMap, EMPTY} from "rxjs";
+import {LoggerService} from "./loggers";
+import {FlagsLoaderService} from "./loaders";
 
 @Injectable()
 export class InitializerService {
-  static readonly DEFAULT_PATH = `/assets/config.json`;
   readonly flags$ = new BehaviorSubject<Record<string, any> | null>(null);
 
-  constructor(@Inject(ROOT_CONFIG_TOKEN) private readonly config: RootConfig,
-              private readonly http: HttpClient,
-              private readonly logger: LoggerService) {
+  constructor(private readonly logger: LoggerService,
+              private readonly loader: FlagsLoaderService) {
   }
 
-  public loadConfig() {
-    const path = this.config.path ?? InitializerService.DEFAULT_PATH;
+  public loadFlags() {
+    return this.loader.loadFlags().pipe(concatMap(config => {
+      this.flags$.next(config);
 
-    // toPromise used because of backward compatibility - to replace in the future
-    return this.createLoader(path).toPromise()
-      .then(config => {
-        this.flags$.next(config);
-        this.logger.info('Loaded flags.');
-      });
-  }
-
-  private createLoader(path: Path): Observable<any> {
-    if (Array.isArray(path)) return this.createArrayLoader(path);
-
-    return this.createSimpleLoader(path);
-  }
-
-  private createArrayLoader(path: PathEl[]): Observable<any> {
-    return zip(...path.map(p => this.createSimpleLoader(p))).pipe(
-      map(res => res.reduce((config, val) => ({...config, ...val}), {}))
-    );
-  }
-
-  private createSimpleLoader(path: PathEl): Observable<any> {
-    const isPathObject = typeof path === 'object';
-    const resourcePath = isPathObject ? path.path : path;
-
-    return this.http.get(resourcePath).pipe(
-      map(v => {
-        if (isPathObject) return {[path.wrapperName]: v};
-
-        return v;
-      }),
-      catchError(e => {
-        this.logError(e, resourcePath);
-        return of({});
-      })
-    );
-  }
-
-  private logError(err: { message: string, status: number }, path: string): void {
-    if (err.status === 404) {
-      this.logger.error(`File ${path} not found.`);
-    } else {
-      this.logger.error(err.message)
-    }
+      return EMPTY;
+    }));
   }
 }

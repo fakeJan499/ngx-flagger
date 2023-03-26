@@ -1,27 +1,31 @@
 import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {InitializerService} from "./initializer.service";
-import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
-import {LoggerService} from "./logger.service";
+import {InitializerService} from "../initializer.service";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "../root-config";
+import {LoggerService} from "../loggers";
 import {Subscription} from "rxjs";
 import {map} from "rxjs/operators";
-import {copy} from "../utils/copy";
-import {isObject} from "../utils/is-object";
+import {copy, isObject} from "../../utils";
 
 @Injectable()
 export class NgxFlaggerService implements OnDestroy {
-  private _flags: Record<string, any> | null = null;
   private flagsSubscription: Subscription;
 
-  flags$ = this.flaggerInitializer.flags$.pipe(map(v => copy(v)));
+  readonly flags$ = this.flaggerInitializer.flags$.pipe(
+    map(flags => copy(flags)),
+    map(flags => this.config.developmentMode ? Object.freeze(flags) : flags)
+  );
 
   get flags(): Record<string, any> | null {
-    return copy(this._flags);
+    return this._flags;
   }
+
+  private _flags: Record<string, any> | null = null;
+
 
   constructor(@Inject(ROOT_CONFIG_TOKEN) private readonly config: RootConfig,
               private readonly flaggerInitializer: InitializerService,
               private readonly logger: LoggerService) {
-    this.flagsSubscription = flaggerInitializer.flags$.subscribe(flags => this._flags = flags);
+    this.flagsSubscription = this.flags$.subscribe(flags => this._flags = flags);
   }
 
   isFeatureFlagEnabled(requiredFlagExpression: string): boolean {

@@ -1,22 +1,12 @@
 import {APP_INITIALIZER, ModuleWithProviders, NgModule} from '@angular/core';
-import {HttpClientModule} from "@angular/common/http";
-import {NgxFlaggerService} from "./ngx-flagger.service";
-import {NgxFlaggerGuard} from "./ngx-flagger.guard";
-import {NgxFlaggerDirective} from "./ngx-flagger.directive";
 import {InitializerService} from "./initializer.service";
 import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
-import {LoggerService} from "./logger.service";
+import {LoggerService, NoopLoggerService} from "./loggers";
+import {NgxFlaggerDirective, NgxFlaggerService} from "./consumers";
 
 @NgModule({
-  imports: [
-    HttpClientModule
-  ],
-  declarations: [
-    NgxFlaggerDirective
-  ],
-  exports: [
-    NgxFlaggerDirective
-  ]
+  declarations: [NgxFlaggerDirective],
+  exports: [NgxFlaggerDirective]
 })
 export class NgxFlaggerModule {
   static forRoot(config: RootConfig): ModuleWithProviders<NgxFlaggerModule> {
@@ -27,13 +17,13 @@ export class NgxFlaggerModule {
           provide: ROOT_CONFIG_TOKEN,
           useValue: config
         },
-        NgxFlaggerService,
-        NgxFlaggerGuard,
-        LoggerService,
+        config.logger ? config.logger : {provide: LoggerService, useClass: NoopLoggerService},
+        config.loader,
         InitializerService,
+        NgxFlaggerService,
         {
           provide: APP_INITIALIZER,
-          useFactory: (initializer: InitializerService) => () => initializer.loadConfig(),
+          useFactory: (initializer: InitializerService) => () => initializer.loadFlags(),
           deps: [InitializerService],
           multi: true
         }

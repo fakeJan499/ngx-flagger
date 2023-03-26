@@ -1,25 +1,23 @@
 import {TestBed} from '@angular/core/testing';
 
 import {NgxFlaggerService} from './ngx-flagger.service';
-import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
-import {InitializerService} from "./initializer.service";
-import {LoggerService} from "./logger.service";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "../root-config";
+import {InitializerService} from "../initializer.service";
 import {BehaviorSubject} from "rxjs";
-import {LogLevel} from "./log-level.enum";
+import {LoggerService} from "../loggers";
+import {NoopLoaderService} from "../../testing";
 import createSpyObj = jasmine.createSpyObj;
 import SpyObj = jasmine.SpyObj;
 
 describe('NgxFlaggerService', () => {
   let config: RootConfig;
-  let flags: Record<string, any>;
   let service: NgxFlaggerService;
   let initializer: SpyObj<InitializerService>;
   let logger: SpyObj<LoggerService>;
 
   beforeEach(() => {
-    config = {};
-    flags = {};
-    initializer = createSpyObj('NgxFlaggerInitializerService', [''], {flags$: new BehaviorSubject(flags)});
+    config = {loader: NoopLoaderService};
+    initializer = createSpyObj('NgxFlaggerInitializerService', [''], {flags$: new BehaviorSubject(null)});
     logger = createSpyObj('NgxFlaggerLogService', ['error', 'info']);
 
     TestBed.configureTestingModule({
@@ -44,6 +42,18 @@ describe('NgxFlaggerService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('should freeze flags object in development mode', () => {
+    config.developmentMode = true;
+    initializer.flags$.next({flag: true});
+
+    const flags = service.flags;
+
+    expect(flags).not.toBeNull();
+    expect(() => {
+      flags!['someFlag'] = false
+    }).toThrow();
   });
 
   describe('isFeatureFlagEnabled', () => {
@@ -75,7 +85,7 @@ describe('NgxFlaggerService', () => {
 
     it('should be true if flag is true', () => {
       const flagName = 'myFlag';
-      flags[flagName] = true;
+      initializer.flags$.next({[flagName]: true})
 
       const result = service.isFeatureFlagEnabled(flagName);
 
@@ -84,7 +94,7 @@ describe('NgxFlaggerService', () => {
 
     it('should be false if flag is false', () => {
       const flagName = 'application';
-      flags[flagName] = false;
+      initializer.flags$.next({[flagName]: false});
 
       const result = service.isFeatureFlagEnabled(flagName);
 
@@ -107,9 +117,7 @@ describe('NgxFlaggerService', () => {
       const stringFlagName = 'str';
       const numberFlagName = 'num';
       const objFlagName = 'obj';
-      flags[stringFlagName] = 'str';
-      flags[numberFlagName] = 'num';
-      flags[objFlagName] = {};
+      initializer.flags$.next({[stringFlagName]: 'str', [numberFlagName]: 'num', [objFlagName]: {}});
 
       const resForStringFlag = service.isFeatureFlagEnabled(stringFlagName);
       const resForNumberFlag = service.isFeatureFlagEnabled(numberFlagName);
@@ -122,7 +130,7 @@ describe('NgxFlaggerService', () => {
 
     it('should show error in the console if flag is not of type boolean', () => {
       const notBoolFlagName = 'anyName';
-      flags[notBoolFlagName] = {};
+      initializer.flags$.next({[notBoolFlagName]: {}});
 
       service.isFeatureFlagEnabled(notBoolFlagName);
 
@@ -130,11 +138,13 @@ describe('NgxFlaggerService', () => {
     });
 
     it('should work with nested flags configuration', () => {
-      flags['obj'] = {
-        nested1: {
-          flag: true
+      initializer.flags$.next({
+        'obj': {
+          nested1: {
+            flag: true
+          }
         }
-      };
+      });
 
       const result = service.isFeatureFlagEnabled('obj.nested1.flag');
 
@@ -145,8 +155,7 @@ describe('NgxFlaggerService', () => {
     it(`should negate result if required flag started with !`, () => {
       const trueFlagName = 'flagA';
       const falseFlagName = 'flagB';
-      flags[trueFlagName] = true;
-      flags[falseFlagName] = false;
+      initializer.flags$.next({[trueFlagName]: true, [falseFlagName]: false});
 
       const resultThatShouldBeFalse = service.isFeatureFlagEnabled('!' + trueFlagName);
       const resultThatShouldBeTrue = service.isFeatureFlagEnabled('!' + falseFlagName);
@@ -156,15 +165,17 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should return whether any flag is true if required flag ended with *`, () => {
-      flags['flags'] = {
-        containerA: {
-          flagAA: false,
-          flagAB: true
-        },
-        containerB: {
-          flagAB: false
+      initializer.flags$.next({
+        'flags': {
+          containerA: {
+            flagAA: false,
+            flagAB: true
+          },
+          containerB: {
+            flagAB: false
+          }
         }
-      };
+      });
 
       expect(service.isFeatureFlagEnabled('*')).toBeTrue();
       expect(service.isFeatureFlagEnabled('flags.*')).toBeTrue();
@@ -173,7 +184,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should negate result when using * syntax`, () => {
-      flags['false'] = false;
+      initializer.flags$.next({false: false});
 
       const result = service.isFeatureFlagEnabled('!*');
 
@@ -181,20 +192,22 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should return whether all valid flags are true if required flag ended with &`, () => {
-      flags['flags'] = {
-        onlyTrueContainer: {
-          flagA: true,
-          nestedContainer: {
-            flagB: true
-          }
-        },
-        containerWithFalse: {
-          flagC: true,
-          nested: {
-            falseFlag: false
+      initializer.flags$.next({
+        flags: {
+          onlyTrueContainer: {
+            flagA: true,
+            nestedContainer: {
+              flagB: true
+            }
+          },
+          containerWithFalse: {
+            flagC: true,
+            nested: {
+              falseFlag: false
+            }
           }
         }
-      };
+      });
 
       expect(service.isFeatureFlagEnabled('&')).toBeFalse();
       expect(service.isFeatureFlagEnabled('flags.onlyTrueContainer.&')).toBeTrue();
@@ -202,7 +215,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should negate result when using & syntax`, () => {
-      flags['false'] = false;
+      initializer.flags$.next({false: false});
 
       const result = service.isFeatureFlagEnabled('!&');
 
@@ -210,8 +223,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should return logical AND of required flags when && is between required flags`, () => {
-      flags['true'] = true;
-      flags['false'] = false;
+      initializer.flags$.next({false: false, true: true});
 
       expect(service.isFeatureFlagEnabled('true && false')).toBeFalse();
       expect(service.isFeatureFlagEnabled('false && false')).toBeFalse();
@@ -221,8 +233,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should return logical AND even if && is not preceded by or followed by space`, () => {
-      flags['true'] = true;
-      flags['false'] = false;
+      initializer.flags$.next({false: false, true: true});
 
       expect(service.isFeatureFlagEnabled('true&&false')).toBeFalse();
       expect(service.isFeatureFlagEnabled('true&&true')).toBeTrue();
@@ -231,8 +242,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should return logical OR of required flags when || is between required flags`, () => {
-      flags['true'] = true;
-      flags['false'] = false;
+      initializer.flags$.next({false: false, true: true});
 
       expect(service.isFeatureFlagEnabled('true || false')).toBeTrue();
       expect(service.isFeatureFlagEnabled('false || false')).toBeFalse();
@@ -241,8 +251,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should return logical OR even if || is not preceded by or followed by space`, () => {
-      flags['true'] = true;
-      flags['false'] = false;
+      initializer.flags$.next({false: false, true: true});
 
       expect(service.isFeatureFlagEnabled('true||false')).toBeTrue();
       expect(service.isFeatureFlagEnabled('false||false')).toBeFalse();
@@ -251,8 +260,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should work with combination of && and ||`, () => {
-      flags['true'] = true;
-      flags['false'] = false;
+      initializer.flags$.next({false: false, true: true});
 
       expect(service.isFeatureFlagEnabled('true && true || false')).toBeTrue();
       expect(service.isFeatureFlagEnabled('false || true && false')).toBeFalse();
@@ -260,8 +268,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should work with logical combinations in brackets`, () => {
-      flags['true'] = true;
-      flags['false'] = false;
+      initializer.flags$.next({false: false, true: true});
 
       expect(service.isFeatureFlagEnabled('true && !(false || true)')).toBeFalse();
       expect(service.isFeatureFlagEnabled('(false || true) && false')).toBeFalse();
@@ -269,7 +276,7 @@ describe('NgxFlaggerService', () => {
     });
 
     it(`should show error in the console if syntax with brackets is incorrect`, () => {
-      flags[anyFlag] = false;
+      initializer.flags$.next({[anyFlag]: false});
 
       service.isFeatureFlagEnabled(`((${anyFlag})`);
       service.isFeatureFlagEnabled(`${anyFlag})`);
@@ -323,8 +330,7 @@ describe('NgxFlaggerService', () => {
 
   describe(`logs`, () => {
     it(`should log info about result`, () => {
-      config.logLevel = LogLevel.INFO;
-      flags['flagA'] = true;
+      initializer.flags$.next({flagA: true});
       const flagsExpression = 'flagA && !flagA';
 
       service.isFeatureFlagEnabled(flagsExpression);
