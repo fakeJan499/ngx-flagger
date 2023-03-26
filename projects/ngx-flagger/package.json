@@ -1,7 +1,7 @@
 {
   "name": "ngx-flagger",
   "version": "1.0.3",
-  "description": "Runtime feature flags for Angular.",
+  "description": "Runtime and build-time feature flags for Angular.",
   "author": {
     "name": "Dawid Szemro"
   },
