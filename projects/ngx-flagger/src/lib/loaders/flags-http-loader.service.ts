@@ -1,10 +1,10 @@
 import {Inject, Injectable, Optional} from "@angular/core";
 import {FlagsLoaderService} from "./flags-loader.service";
-import {Flags, Path, PATH_TOKEN, PathEl} from "../root-config";
 import {concatMap, Observable, of, zip} from "rxjs";
 import {catchError, map} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {LoggerService} from "../loggers";
+import {Flags, Path, PATH_TOKEN, PathEl} from "../models";
 
 @Injectable()
 export class FlagsHttpLoaderService implements FlagsLoaderService {

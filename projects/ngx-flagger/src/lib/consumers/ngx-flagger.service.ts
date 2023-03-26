@@ -1,10 +1,10 @@
 import {Inject, Injectable, OnDestroy} from '@angular/core';
 import {InitializerService} from "../initializer.service";
-import {ROOT_CONFIG_TOKEN, RootConfig} from "../root-config";
 import {LoggerService} from "../loggers";
 import {Subscription} from "rxjs";
 import {map} from "rxjs/operators";
 import {copy, isObject} from "../../utils";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "../models";
 
 @Injectable()
 export class NgxFlaggerService implements OnDestroy {

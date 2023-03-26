@@ -1,8 +1,8 @@
 import {APP_INITIALIZER, ModuleWithProviders, NgModule} from '@angular/core';
 import {InitializerService} from "./initializer.service";
-import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {LoggerService, NoopLoggerService} from "./loggers";
 import {NgxFlaggerDirective, NgxFlaggerService} from "./consumers";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./models";
 
 @NgModule({
   declarations: [NgxFlaggerDirective],

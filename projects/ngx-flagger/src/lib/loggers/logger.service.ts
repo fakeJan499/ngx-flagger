@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 
 @Injectable()
 export abstract class LoggerService {
-  protected constructor(...args: any) {
+  protected constructor() {
   }
 
   abstract error(message: string): void;

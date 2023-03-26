@@ -1,10 +1,10 @@
 import {InitializerService} from "./initializer.service";
-import {ROOT_CONFIG_TOKEN, RootConfig} from "./root-config";
 import {fakeAsync, flush, TestBed} from "@angular/core/testing";
 import {LoggerService} from "./loggers";
 import {NoopLoaderService} from "../testing";
 import {FlagsLoaderService} from "./loaders";
 import {of} from "rxjs";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "./models";
 import createSpyObj = jasmine.createSpyObj;
 import SpyObj = jasmine.SpyObj;
 

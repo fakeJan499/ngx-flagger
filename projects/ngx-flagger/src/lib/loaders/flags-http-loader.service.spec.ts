@@ -2,7 +2,7 @@ import {FlagsHttpLoaderService} from "./flags-http-loader.service";
 import {LoggerService} from "../loggers";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 import {TestBed} from "@angular/core/testing";
-import {PATH_TOKEN} from "../root-config";
+import {PATH_TOKEN} from "../models";
 import createSpyObj = jasmine.createSpyObj;
 
 describe('FlagsHttpLoaderService', () => {

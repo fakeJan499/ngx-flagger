@@ -1,11 +1,11 @@
 import {TestBed} from '@angular/core/testing';
 
 import {NgxFlaggerService} from './ngx-flagger.service';
-import {ROOT_CONFIG_TOKEN, RootConfig} from "../root-config";
 import {InitializerService} from "../initializer.service";
 import {BehaviorSubject} from "rxjs";
 import {LoggerService} from "../loggers";
 import {NoopLoaderService} from "../../testing";
+import {ROOT_CONFIG_TOKEN, RootConfig} from "../models";
 import createSpyObj = jasmine.createSpyObj;
 import SpyObj = jasmine.SpyObj;
 
