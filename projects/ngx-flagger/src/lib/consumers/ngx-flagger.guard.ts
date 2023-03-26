@@ -5,6 +5,11 @@ import {LoggerService} from "../loggers";
 import {joinUrlSegments} from "../../utils";
 
 export interface NgxFlaggerGuardFactoryData {
+  /**
+   * Path the guard will redirect to in case value of required feature flag expression is false.
+   *
+   * If no value provided or value is falsy, guard would return **false** instead of **UrlTree**.
+   */
   redirectTo?: string;
 }
 
